@@ -1,0 +1,6 @@
+[submodule "limo-proxy"]
+	path = limo-proxy
+	url = https://github.com/ethlimo/eth.limo-proxy.git
+[submodule "limo-caddy"]
+	path = limo-caddy
+	url = https://github.com/ethlimo/eth.limo-caddy

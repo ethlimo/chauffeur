@@ -1,0 +1,79 @@
+services:
+    initializer:
+        image: alpine
+        restart: "no"
+        entrypoint: |
+          /bin/sh -c "chown 10001:10001 /data/caddy /srv/.config"
+        volumes:
+          - caddy-data:/data/caddy
+          - caddy-config:/srv/.config
+
+    limo-proxy:
+        build: limo-proxy
+        depends_on:
+          - redis
+          - ethereum
+        environment:
+          - REDIS_URL=redis://redis:6379
+          - DOMAIN_TLD=.local
+          - ETH_RPC_ENDPOINT=http://ethereum:8545
+          - IPFS_TARGET=http://ipfs:8080
+          - NODE_ENV=test
+        networks:
+            limo:
+        
+    limo-caddy:
+        depends_on:
+          - initializer
+        build:
+            context: limo-caddy
+            dockerfile: Dockerfile.caddy
+        networks:
+            limo:
+        ports:
+          - "172.28.0.1:443:443"
+        volumes:
+          - ./Caddyfile.json:/etc/caddy/Caddyfile.json
+          - caddy-data:/data/caddy
+          - caddy-config:/srv/.config
+    
+    ethereum:
+        image: ethereum/client-go
+        command: [ "--syncmode", "light", "--http", "--http.api", "eth,net,web3", "--http.addr", "ethereum", "--http.vhosts", "*" ]
+        networks:
+            limo:
+        volumes:
+          - ethereum-data:/root/.ethereum
+    
+    ipfs:
+        image: ipfs/kubo
+        networks:
+            limo:
+    
+    redis:
+        image: redis
+        networks:
+            limo:
+  
+    limo-dns:
+        image: strm/dnsmasq
+        networks:
+            limo:
+        ports:
+          - "172.28.0.1:53:53"
+        volumes:
+          - ./dnsmasq.conf:/etc/dnsmasq.conf
+        cap_add:
+          - NET_ADMIN
+volumes:
+    caddy-data:
+    caddy-config:
+    ethereum-data:
+          
+networks:
+    limo:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.28.0.0/16
+                  gateway: 172.28.0.1
