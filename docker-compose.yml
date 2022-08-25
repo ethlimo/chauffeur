@@ -28,6 +28,7 @@ services:
         build:
             context: limo-caddy
             dockerfile: Dockerfile.caddy
+        command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.json"]
         networks:
             limo:
         ports:
