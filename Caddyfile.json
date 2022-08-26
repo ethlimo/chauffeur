@@ -126,6 +126,10 @@
         ]
       }
     }
+  },
+  "storage": {
+    "module": "redis",
+    "address": "redis:6379"
   }
 }
 

@@ -3,9 +3,8 @@ services:
         image: alpine
         restart: "no"
         entrypoint: |
-          /bin/sh -c "chown 10001:10001 /data/caddy /srv/.config"
+          /bin/sh -c "chown -R 10001:10001 /data/caddy /srv/.config"
         volumes:
-          - caddy-data:/data/caddy
           - caddy-config:/srv/.config
 
     limo-proxy:
@@ -18,7 +17,6 @@ services:
           - DOMAIN_TLD=.local
           - ETH_RPC_ENDPOINT=http://ethereum:8545
           - IPFS_TARGET=http://ipfs:8080
-          - NODE_ENV=test
         networks:
             limo:
         
@@ -35,14 +33,17 @@ services:
           - "172.28.0.1:443:443"
         volumes:
           - ./Caddyfile.json:/etc/caddy/Caddyfile.json
-          - caddy-data:/data/caddy
           - caddy-config:/srv/.config
+          - type: tmpfs
+            target: /tmp
     
     ethereum:
         image: ethereum/client-go
         command: [ "--syncmode", "light", "--http", "--http.api", "eth,net,web3", "--http.addr", "ethereum", "--http.vhosts", "*" ]
         networks:
             limo:
+        ports:
+          - "172.28.0.1:8545:8545"
         volumes:
           - ethereum-data:/root/.ethereum
     
@@ -50,11 +51,17 @@ services:
         image: ipfs/kubo
         networks:
             limo:
+        volumes:
+          - ./ipfs-init.sh:/container-init.d/00-limo.sh
+          - ipfs-data:/data/ipfs
     
     redis:
         image: redis
+        command: [ "redis-server", "--save", "60", "1" ]
         networks:
             limo:
+        volumes:
+          - redis-data:/data
   
     limo-dns:
         image: strm/dnsmasq
@@ -67,9 +74,10 @@ services:
         cap_add:
           - NET_ADMIN
 volumes:
-    caddy-data:
     caddy-config:
     ethereum-data:
+    ipfs-data:
+    redis-data:
           
 networks:
     limo:
