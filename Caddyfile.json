@@ -93,7 +93,32 @@
                             {
                               "dial": "limo-proxy:8888"
                             }
-                          ]
+                          ],
+                          "handle_response": [{
+                            "match": {
+                              "status_code": [305]
+                            },
+                            "routes": [
+                              {
+                                "handle": [
+                                    {
+                                        "handler": "reverse_proxy",
+                                        "transport": {
+                                            "protocol": "http"
+                                        },
+                                        "rewrite": {
+                                            "uri": "{http.reverse_proxy.header.X-Content-Location}{http.request.uri.path}"
+                                        },
+                                        "upstreams": [
+                                            {
+                                                "dial": "ipfs:8080"
+                                            }
+                                        ]
+                                    }
+                                ]
+                              }
+                            ]
+                          }]
                         }
                       ]
                     }
