@@ -3,7 +3,6 @@ services:
         image: ethdotlimo/chauffeur
         depends_on:
           - redis
-          - ethereum
         environment:
           - REDIS_URL=redis://redis:6379
           - DOMAIN_TLD=.local
@@ -22,7 +21,7 @@ services:
         ports:
           - "172.28.0.1:443:443"
         volumes:
-          - ./Caddyfile.json:/etc/caddy/Caddyfile.json
+          - ./Caddyfile.json:/etc/caddy/Caddyfile.json:z
           - caddy-data:/data
           - type: tmpfs
             target: /tmp
@@ -36,13 +35,15 @@ services:
           - "172.28.0.1:8545:8545"
         volumes:
           - ethereum-data:/root/.ethereum
+        profiles:
+          - trustless
     
     ipfs:
         image: ipfs/kubo
         networks:
             limo:
         volumes:
-          - ./ipfs-init.sh:/container-init.d/00-limo.sh
+          - ./ipfs-init.sh:/container-init.d/00-limo.sh:z
           - ipfs-data:/data/ipfs
     
     redis:
@@ -60,7 +61,7 @@ services:
         ports:
           - "172.28.0.1:53:53"
         volumes:
-          - ./dnsmasq.conf:/etc/dnsmasq.conf
+          - ./dnsmasq.conf:/etc/dnsmasq.conf:z
         cap_add:
           - NET_ADMIN
 volumes:
