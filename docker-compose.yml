@@ -15,6 +15,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.caddy
+        depends_on:
+          - redis
         command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.json"]
         networks:
             limo:
@@ -59,7 +61,8 @@ services:
         networks:
             limo:
         ports:
-          - "172.28.0.1:53:53"
+          - "172.28.0.1:53:53/tcp"
+          - "172.28.0.1:53:53/udp"
         volumes:
           - ./dnsmasq.conf:/etc/dnsmasq.conf:z
         cap_add:
