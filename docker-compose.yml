@@ -1,39 +1,30 @@
 services:
-    initializer:
-        image: alpine
-        restart: "no"
-        entrypoint: |
-          /bin/sh -c "chown -R 10001:10001 /data/caddy /srv/.config"
-        volumes:
-          - caddy-config:/srv/.config
-
     limo-proxy:
-        build: limo-proxy
+        image: ethdotlimo/chauffeur
         depends_on:
           - redis
-          - ethereum
         environment:
           - REDIS_URL=redis://redis:6379
           - DOMAIN_TLD=.local
-          - ETH_RPC_ENDPOINT=http://ethereum:8545
+          - ETH_RPC_ENDPOINT=${ETH_RPC_ENDPOINT-http://ethereum:8545}
           - IPFS_TARGET=http://ipfs:8080
         networks:
             limo:
         
     limo-caddy:
-        depends_on:
-          - initializer
         build:
-            context: limo-caddy
+            context: .
             dockerfile: Dockerfile.caddy
+        depends_on:
+          - redis
         command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.json"]
         networks:
             limo:
         ports:
           - "172.28.0.1:443:443"
         volumes:
-          - ./Caddyfile.json:/etc/caddy/Caddyfile.json
-          - caddy-config:/srv/.config
+          - ./Caddyfile.json:/etc/caddy/Caddyfile.json:z
+          - caddy-data:/data
           - type: tmpfs
             target: /tmp
     
@@ -46,13 +37,15 @@ services:
           - "172.28.0.1:8545:8545"
         volumes:
           - ethereum-data:/root/.ethereum
+        profiles:
+          - trustless
     
     ipfs:
         image: ipfs/kubo
         networks:
             limo:
         volumes:
-          - ./ipfs-init.sh:/container-init.d/00-limo.sh
+          - ./ipfs-init.sh:/container-init.d/00-limo.sh:z
           - ipfs-data:/data/ipfs
     
     redis:
@@ -68,13 +61,14 @@ services:
         networks:
             limo:
         ports:
-          - "172.28.0.1:53:53"
+          - "172.28.0.1:53:53/tcp"
+          - "172.28.0.1:53:53/udp"
         volumes:
-          - ./dnsmasq.conf:/etc/dnsmasq.conf
+          - ./dnsmasq.conf:/etc/dnsmasq.conf:z
         cap_add:
           - NET_ADMIN
 volumes:
-    caddy-config:
+    caddy-data:
     ethereum-data:
     ipfs-data:
     redis-data:
