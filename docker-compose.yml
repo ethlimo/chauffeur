@@ -8,6 +8,7 @@ services:
           - DOMAIN_TLD=.local
           - ETH_RPC_ENDPOINT=${ETH_RPC_ENDPOINT-http://ethereum:8545}
           - IPFS_TARGET=http://ipfs:8080
+          - LOG_LEVEL=${LOG_LEVEL-info}
         networks:
             limo:
         
