@@ -96,7 +96,10 @@
                           ],
                           "handle_response": [{
                             "match": {
-                              "status_code": [305]
+                              "status_code": [305],
+                              "headers": {
+                                "X-Content-Codec": ["ipfs-ns", "ipns-ns"]
+                              }
                             },
                             "routes": [
                               {
