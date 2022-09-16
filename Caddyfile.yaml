@@ -13,6 +13,103 @@ logging:
                     format: json
             level: DEBUG
 
+x-identifying_headers: &identifying_headers
+    - X-Forwarded-For
+    - Referer
+    - User-Agent
+    - X-Forwarded-Host
+
+x-ipfs_gateway: &ipfs_gateway
+    match:
+        status_code: [305]
+        headers:
+            X-Content-Codec: [ "ipfs-ns", "ipns-ns" ]
+    routes:
+    - handle:
+      - handler: rewrite
+        uri: "{http.reverse_proxy.header.X-Content-Location}{http.request.uri.path}"
+        uri_substring:
+        - find: ///
+          replace: /
+        - find: //
+          replace: /
+      - handler: reverse_proxy
+        upstreams:
+        - dial: ipfs:8080
+
+x-skynet_gateway: &skynet_gateway
+    match:
+        status_code: [305]
+        headers:
+            X-Content-Codec: [ "skynet-ns" ]
+    routes:
+    - handle:
+      - handler: rewrite
+        uri: "{http.reverse_proxy.header.X-Content-Location}{http.request.uri.path}"
+        uri_substring:
+        - find: ///
+          replace: /
+        - find: //
+          replace: /
+      - handler: reverse_proxy
+        transport:
+            protocol: http
+            tls: {}
+        headers:
+          request:
+            add:
+                Skynet-Api-Key: 
+                - "{env.SKYNET_API_KEY}"
+            delete:
+              *identifying_headers
+        upstreams:
+        - dial: skynetfree.net:443
+
+x-social_gateway: &social_gateway
+    match:
+        status_code: [305]
+        headers:
+            X-Content-Codec: [ "ens-socials-redirect" ]
+    routes:
+    - handle:
+      - handler: rewrite
+        uri: "/?ens={http.reverse_proxy.header.X-Content-Location}"
+      - handler: reverse_proxy
+        transport:
+            protocol: http
+            tls: {}
+        headers:
+          request:
+            delete:
+              *identifying_headers
+        upstreams:
+        - dial: landing.nimi.page:443
+        
+x-http_gateway: &http_gateway
+    match:
+        status_code: [305]
+        headers:
+            X-Content-Codec: [ "http", "https" ]
+    routes:
+    - handle:
+      - handler: static_response
+        status_code: 301
+        headers:
+            Location: ["{http.reverse_proxy.header.X-Content-Location}"]
+
+x-unsupported_gateway: &unsupported_gateway
+    routes:
+    - handle:
+      - handler: static_response
+        status_code: 422
+
+x-content_gateways: &content_gateways
+    - *ipfs_gateway
+    - *skynet_gateway
+    - *social_gateway
+    - *http_gateway
+    - *unsupported_gateway
+
 apps:
     tls:
         automation:
@@ -41,13 +138,12 @@ apps:
                         handler: headers
                         request:
                             delete:
-                            - X-Forwarded-For
-                            - Referer
-                            - User-Agent
-                            - X-Forwarded-Host
+                              *identifying_headers
                     -
                         handler: reverse_proxy
                         transport:
                             protocol: http
                         upstreams:
-                        - dial: "limo-proxy:8888"
+                        - dial: limo-proxy:8888
+                        handle_response:
+                          *content_gateways

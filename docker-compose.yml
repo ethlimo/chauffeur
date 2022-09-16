@@ -19,6 +19,8 @@ services:
         depends_on:
           - redis
         command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.yaml", "--adapter", "yaml"]
+        environment:
+          - SKYNET_API_KEY=${SKYNET_API_KEY}
         networks:
             limo:
         ports:
