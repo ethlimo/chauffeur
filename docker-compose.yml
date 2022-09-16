@@ -18,13 +18,14 @@ services:
             dockerfile: Dockerfile.caddy
         depends_on:
           - redis
-        command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.json"]
+        command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.yaml", "--adapter", "yaml"]
         networks:
             limo:
         ports:
           - "172.28.0.1:443:443"
         volumes:
-          - ./Caddyfile.json:/etc/caddy/Caddyfile.json:z
+          - ./Caddyfile.yaml:/etc/caddy/Caddyfile.yaml:z
+          - ./certificates:/certificates:z
           - caddy-data:/data
           - type: tmpfs
             target: /tmp

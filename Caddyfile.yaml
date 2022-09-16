@@ -1,0 +1,53 @@
+storage:
+    module: redis
+    address: redis:6379
+
+logging:
+    logs:
+        default:
+            writer:
+                output: stdout
+            encoder:
+                format: filter
+                wrap:
+                    format: json
+            level: DEBUG
+
+apps:
+    tls:
+        automation:
+            policies:
+            - on_demand: true
+              issuers:
+              - module: internal
+                ca: chauffeur
+    pki:
+        certificate_authorities:
+            chauffeur:
+                name: chauffeur
+                root_common_name: Chauffeur
+                install_trust: false
+                storage:
+                    module: file_system
+                    root: /certificates
+    http:
+        servers:
+            chauffeur:
+                listen: [ ":443" ]
+                routes:
+                -
+                    handle:
+                    -
+                        handler: headers
+                        request:
+                            delete:
+                            - X-Forwarded-For
+                            - Referer
+                            - User-Agent
+                            - X-Forwarded-Host
+                    -
+                        handler: reverse_proxy
+                        transport:
+                            protocol: http
+                        upstreams:
+                        - dial: "limo-proxy:8888"
