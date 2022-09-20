@@ -4,6 +4,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/ethdotlimo/chauffeur)](https://hub.docker.com/repository/docker/ethdotlimo/chauffeur)
 [![Twitter Follow](https://img.shields.io/twitter/follow/eth_limo?style=social)](https://twitter.com/intent/user?screen_name=eth_limo)
 [![Discord](https://img.shields.io/discord/889908452896436298)](https://discord.com/invite/zf8NxW94rB)
+[![Website](https://img.shields.io/badge/web--lightgrey)](https://eth.limo/)
+
 
 ## Table of Contents
 - [Getting Started](#getting-started)
