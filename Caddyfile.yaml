@@ -107,7 +107,6 @@ x-content_gateways: &content_gateways
     - *ipfs_gateway
     - *skynet_gateway
     - *social_gateway
-    - *http_gateway
     - *unsupported_gateway
 
 apps:
