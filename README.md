@@ -82,4 +82,4 @@ You can also see the complete [list of contributors][contributors] who participa
 
 ## License
 
-`Chauffeur` is open source software [licensed as MIT][license].
+`Chauffeur` is open source software [licensed as MIT][LICENSE].
