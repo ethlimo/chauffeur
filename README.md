@@ -78,8 +78,8 @@ Optionally, specify `--profile trustless` in order to launch the Geth light clie
 * [GitHub](https://github.com/TheFrozenFire/)
 * [Twitter](https://twitter.com/thefrozenfire)
 
-You can also see the complete [list of contributors][contributors] who participated in this project.
+You can also see the complete [list of contributors](contributors) who participated in this project.
 
 ## License
 
-`Chauffeur` is open source software [licensed as MIT][LICENSE].
+`Chauffeur` is open source software [licensed as MIT](license).
