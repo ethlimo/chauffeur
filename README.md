@@ -35,7 +35,7 @@ The first change to make is to configure resolution of the `eth.local` domain na
 
 ##### systemd-resolved (e.g. RHEL, Fedora)
 
-Create the file `/etc/systemd/resolved.conf.d/eth_limo.conf`, with the following content:
+Create the file `/etc/systemd/resolved.conf.d/chauffeur.conf`, with the following content:
 
 ```
 [Resolve]
