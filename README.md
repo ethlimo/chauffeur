@@ -74,6 +74,10 @@ Optionally, specify `--profile trustless` in order to launch the Geth light clie
 
 ## Authors
 
+#### eth.limo Team
+* [GitHub](https://github.com/ethlimo)
+* [Twitter](https://twitter.com/eth_limo)
+
 #### Justin Martin
 * [GitHub](https://github.com/TheFrozenFire/)
 * [Twitter](https://twitter.com/thefrozenfire)
