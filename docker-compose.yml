@@ -20,6 +20,7 @@ services:
           - redis
         command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.yaml", "--adapter", "yaml"]
         environment:
+          # Note - Skynet has been deprecated
           - SKYNET_API_KEY=${SKYNET_API_KEY}
         networks:
             limo:
